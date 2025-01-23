@@ -11,7 +11,7 @@ import {
 import { Checkbox } from 'expo-checkbox';
 import api from '../services/api';
 import { useFocusEffect } from '@react-navigation/native';
-import { EditIcon, SquareX, ChevronRight, ArrowRightToLine, ChevronLeft, ArrowLeftToLine } from 'lucide-react-native';
+import { ChevronRight, ArrowRightToLine, ChevronLeft, ArrowLeftToLine } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const SelectProducts = ({ route }) => {
@@ -132,7 +132,7 @@ const SelectProducts = ({ route }) => {
         <Text style={[styles.paginationText, page === totalPages && styles.disabledText]}>
           <ArrowRightToLine color="#fff" />
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity>      
     </View>
   );
 
@@ -225,17 +225,19 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
   },
   selectButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    backgroundColor: '#34d399',
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 20,
+    marginTop:8,
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor: '#365E32',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
   },
   buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
+    justifyContent:'center',
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 24,
   },
 });
 

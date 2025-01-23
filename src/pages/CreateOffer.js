@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Modal, FlatList, Alert, Text } from 'react-native';
 import { AlignLeft, CalendarCheck2, SendHorizontal, DollarSign } from 'lucide-react-native';
-import RNPickerSelect from 'react-native-picker-select';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
 import { SquareMinus } from 'lucide-react-native';
@@ -9,8 +8,7 @@ import api from '../services/api';
 
 const CreateOffer = ({ route }) => {
   const navigation = useNavigation();
-  const { marketId } = route.params; // `marketId` routedan olinadi
-
+  const { marketId, marketName } = route.params;
   const [comment, setComment] = useState('');
   const [paymentType, setPaymentType] = useState('');
   const [agentId, setAgentId] = useState('');
@@ -19,31 +17,26 @@ const CreateOffer = ({ route }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Mahsulotlarni tanlash uchun navigatsiya
   const handleSelectProducts = () => {
     navigation.navigate('SelectProducts', {
       selectedProducts,
       onProductsSelected: (products) => {
         setSelectedProducts(products);
         if (products.length > 0) {
-          const firstProduct = products[0]; // You can select how to choose the agentId if multiple products are selected
-          setAgentId(firstProduct.agentId);  // Assuming each product has agentId
-        }},
+          setAgentId(products[0].agentId);
+        }
+      },
     });
   };
 
-  // Mahsulotni ro'yxatdan o'chirish
   const removeProduct = (productId) => {
     setSelectedProducts((prevProducts) =>
-      prevProducts.filter((product) => product.id !== productId) // id bo'yicha filtrlash
+      prevProducts.filter((product) => product.id !== productId)
     );
   };
 
-  // Miqdorni yangilash (validatsiya bilan)
   const updateQuantity = (productId, quantity) => {
     const parsedQuantity = parseInt(quantity, 10);
-
-    // Faqat son kiritilgan bo'lsa va 1 dan katta bo'lsa
     if (!isNaN(parsedQuantity) && parsedQuantity >= 1) {
       setSelectedProducts((prevProducts) =>
         prevProducts.map((product) =>
@@ -53,7 +46,6 @@ const CreateOffer = ({ route }) => {
     }
   };
 
-  // Miqdorni kamaytirish
   const decreaseQuantity = (productId) => {
     setSelectedProducts((prevProducts) =>
       prevProducts.map((product) =>
@@ -64,7 +56,6 @@ const CreateOffer = ({ route }) => {
     );
   };
 
-  // Miqdorni oshirish
   const increaseQuantity = (productId) => {
     setSelectedProducts((prevProducts) =>
       prevProducts.map((product) =>
@@ -73,32 +64,27 @@ const CreateOffer = ({ route }) => {
     );
   };
 
-  // Tanlangan mahsulotlarni ko'rsatish
   const renderSelectedProducts = () => (
     <FlatList
       data={selectedProducts}
-      keyExtractor={(item) => item.id.toString()} // id ni key sifatida ishlatish
+      keyExtractor={(item) => item.id ? item.id.toString() : item.name + item.packaging}
       renderItem={({ item }) => (
         <View style={styles.productCard}>
-          {/* Mahsulot nomi va o'chirish tugmasi */}
           <View style={styles.productHeader}>
             <Text style={styles.productName}>{`${item.name} - ${item.packaging || ''}`}</Text>
             <TouchableOpacity onPress={() => removeProduct(item.id)}>
               <SquareMinus style={styles.removeButton} />
             </TouchableOpacity>
           </View>
-          {/* Narx va sotuv turi */}
           <Text style={styles.productText}>{`Narxi: ${item.purchasePrice} UZS`}</Text>
           <Text style={styles.productText}>{`Sotuv turi: ${item.saleType}`}</Text>
-
-          {/* Miqdor kiritish */}
           <View style={styles.quantityContainer}>
             <TouchableOpacity onPress={() => decreaseQuantity(item.id)} style={styles.quantityButton}>
               <Text style={styles.quantityButtonText}>-</Text>
             </TouchableOpacity>
             <TextInput
               style={styles.quantityInput}
-              value={item.quantity?.toString() || '1'} // Miqdor 1 dan boshlansin
+              value={item.quantity?.toString() || '1'}
               keyboardType="numeric"
               onChangeText={(text) => updateQuantity(item.id, text)}
             />
@@ -112,57 +98,49 @@ const CreateOffer = ({ route }) => {
     />
   );
 
-  // Sana tanlash
   const handleSelectDate = () => {
     setShowDatePicker(true);
   };
 
-  // Handle when payment type is selected
   const handlePaymentType = () => {
-    setModalVisible(true); // Open the modal when the button is pressed
+    setModalVisible(true);
   };
 
   const handleSelectPaymentType = (type) => {
-    setPaymentType(type); // Set the selected payment type
-    setModalVisible(false); // Close the modal
+    setPaymentType(type);
+    setModalVisible(false);
   };
 
-  // Taklifni yuborish
   const handleSendOffer = async () => {
-    if (!selectedProducts.length) {
+    if (!selectedProducts.length || !deliveryDate || !paymentType) {
       Alert.alert('Error', 'Please complete all fields before sending the offer.');
       return;
     }
 
     try {
-      // Yangi taklif yaratish uchun so'rov yuborish
-      const response = await api.post('/offer/create', {
-          items: selectedProducts.map((product) => ({
-            productId: product.id, // Agar productId bo'lmasa, id ni ishlatish
-            amount: product.quantity, // Miqdorni foydalanish
-          })),
-          deliveryDate: deliveryDate.toISOString().split('T')[0],
-          paymentType,
-          agentId: agentId, // Agentning IDsi (demo uchun qo'lda yozilgan)
-          marketId,
-        })
-      ;
+      const offerResponse = await api.post('/offer/create', {
+        items: selectedProducts.map((product) => ({
+          productId: product.id,
+          amount: product.quantity,
+        })),
+        deliveryDate: deliveryDate.toISOString().split('T')[0],
+        paymentType,
+        agentId,
+        marketId,
+      });
 
-            if (response.status === 201) {
-              Alert.alert('Muvaffaqiyat', 'Mahsulot muvaffaqiyatli qo\'shildi!');
-            }
-      // const offerData = await offerResponse.json();
+        const offerId = offerResponse.data;
 
-      // if (offerResponse.ok && comment) {
-      //   // Taklifga izoh qo'shish
-      //   await fetch('/agent/offer/comment', {
-      //     method: 'POST',
-      //     headers: { 'Content-Type': 'application/json' },
-      //     body: JSON.stringify({ offerId: offerData.id, text: comment }),
-      //   });
-      // }
+        console.log(offerId);
+        if (comment) {
+          await api.post('/offer/comment', {
+            offerId,
+            text: comment,
+          });
+        }
 
-      Alert.alert('Success', 'Offer sent successfully.');
+        Alert.alert('Success', 'Offer created successfully.');
+        navigation.navigate('OffersScreen', {marketId, marketName});
     } catch (error) {
       Alert.alert('Error', 'Failed to send the offer.');
     }
@@ -170,12 +148,9 @@ const CreateOffer = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      {/* Tanlangan mahsulotlar */}
       {renderSelectedProducts()}
 
-      {/* Pastki bo'lim */}
       <View style={styles.footer}>
-        {/* Izoh */}
         <TextInput
           style={styles.commentInput}
           placeholder="Izoh"
@@ -183,92 +158,74 @@ const CreateOffer = ({ route }) => {
           value={comment}
           onChangeText={setComment}
         />
-      {/* Show the selected payment type */}
-      {paymentType ? (
-        <Text style={styles.selectedPaymentText}>Tanlangan to'lov turi: {paymentType}</Text>
-      ) : (
-        <Text style={styles.selectedPaymentText}>Hech qanday to'lov turi tanlanmagan</Text>
-      )}
-      {deliveryDate ? (
-        <Text style={styles.selectedPaymentText}>
-          Yetkazib berish sanasi: {`${String(deliveryDate.getDate()).padStart(2, '0')}/${String(deliveryDate.getMonth() + 1).padStart(2, '0')}/${deliveryDate.getFullYear()}`}
-        </Text>
 
-      ) : (
-        <Text style={styles.selectedPaymentText}>Yetkazib berish sanasi belgilanmadi</Text>
-      )}
-      {/* <Text style={styles.selectedPaymentText}>{selectedProducts.length.toString()}</Text> */}
+        {paymentType ? (
+          <Text style={styles.selectedPaymentText}>Tanlangan to'lov turi: {paymentType}</Text>
+        ) : (
+          <Text style={styles.selectedPaymentText}>Hech qanday to'lov turi tanlanmagan</Text>
+        )}
 
-      {/* Footer buttons */}
-      <View style={styles.buttonRow}>
-        {/* Mahsulot tanlash */}
-        <TouchableOpacity style={styles.footerButton} onPress={handleSelectProducts}>
-          <AlignLeft size={32} color="#fff" />
-        </TouchableOpacity>
+        {deliveryDate ? (
+          <Text style={styles.selectedPaymentText}>
+            Yetkazib berish sanasi: {`${String(deliveryDate.getDate()).padStart(2, '0')}/${String(deliveryDate.getMonth() + 1).padStart(2, '0')}/${deliveryDate.getFullYear()}`}
+          </Text>
+        ) : (
+          <Text style={styles.selectedPaymentText}>Yetkazib berish sanasi belgilanmadi</Text>
+        )}
 
-        {/* To'lov turi */}
-        <TouchableOpacity style={styles.footerButton} onPress={handlePaymentType}>
-          <DollarSign size={32} color="#fff" />
-        </TouchableOpacity>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.footerButton} onPress={handleSelectProducts}>
+            <AlignLeft size={32} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.footerButton} onPress={handlePaymentType}>
+            <DollarSign size={32} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.footerButton} onPress={handleSelectDate}>
+            <CalendarCheck2 size={32} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.footerButton} onPress={handleSendOffer}>
+            <SendHorizontal size={32} color="#fff" />
+          </TouchableOpacity>
+        </View>
 
-        {/* Sana tanlash */}
-        <TouchableOpacity style={styles.footerButton} onPress={handleSelectDate}>
-          <CalendarCheck2 size={32} color="#fff" />
-        </TouchableOpacity>
-
-        {/* Taklif yuborish */}
-        <TouchableOpacity style={styles.footerButton} onPress={handleSendOffer}>
-          <SendHorizontal size={32} color="#fff" />
-        </TouchableOpacity>
+        <Modal
+          transparent={true}
+          visible={modalVisible}
+          animationType="fade"
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>To'lov turini tanlang</Text>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={() => handleSelectPaymentType('cash')}
+              >
+                <Text style={styles.optionText}>Naqt pul</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={() => handleSelectPaymentType('paid')}
+              >
+                <Text style={styles.optionText}>To'langan</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={() => handleSelectPaymentType('bank_transfer')}
+              >
+                <Text style={styles.optionText}>O'tkazma</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={() => handleSelectPaymentType('terminal')}
+              >
+                <Text style={styles.optionText}>Terminal</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
 
-
-
-      {/* Modal for selecting payment type */}
-      <Modal
-        transparent={true}
-        visible={modalVisible}
-        animationType="fade"
-        onRequestClose={() => setModalVisible(false)} // Close modal when back is pressed
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>To'lov turini tanlang</Text>
-
-            {/* Payment Type Options */}
-            <TouchableOpacity
-              style={styles.optionButton}
-              onPress={() => handleSelectPaymentType('cash')}
-            >
-              <Text style={styles.optionText}>Naqt pul</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.optionButton}
-              onPress={() => handleSelectPaymentType('paid')}
-            >
-              <Text style={styles.optionText}>To'langan</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.optionButton}
-              onPress={() => handleSelectPaymentType('bank_transfer')}
-            >
-              <Text style={styles.optionText}>O'tkazma</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.optionButton}
-              onPress={() => handleSelectPaymentType('terminal')}
-            >
-              <Text style={styles.optionText}>Terminal</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-    </View>
-
-      {/* Sana tanlash oynasi */}
       {showDatePicker && (
         <DateTimePicker
           value={deliveryDate || new Date()}
@@ -410,7 +367,7 @@ const styles = StyleSheet.create({
   optionButton: {
     paddingVertical: 12,
     paddingHorizontal: 90,
-    backgroundColor: '#3D30A2',
+    backgroundColor: '#365E32',
     borderRadius: 8,
     marginBottom: 10,
   },

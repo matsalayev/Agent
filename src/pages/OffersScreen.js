@@ -1,88 +1,94 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import api from '../services/api';
-import {BadgePlus} from 'lucide-react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { BadgePlus, ChevronLeft, ArrowLeftToLine, ChevronRight, ArrowRightToLine} from 'lucide-react-native';
 
 const OffersScreen = ({ route }) => {
   const { marketId, marketName } = route.params;
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1); // Umumiy sahifalar soni
+  const [totalPages, setTotalPages] = useState(1);
   const navigation = useNavigation();
+  const limit = 5;
 
-  const fetchOffers = async (currentPage = 1) => {
+  const fetchOffers = useCallback(async () => {
     setLoading(true);
     try {
       const response = await api.get(`/offer/all/${marketId}`, {
         params: {
-          limit: 10, // Har bir sahifada 10 ta element
-          page: currentPage,
+          limit: limit,
+          page: page,
         },
       });
 
-      const { data, totalPages } = response.data;
+      const { data, total } = response.data;
 
+      // Ma'lumotlarni to'g'ri shaklda yangilash
       setOffers(data);
-      setTotalPages(totalPages); // Umumiy sahifalar sonini yangilash
-      setLoading(false);
+      setTotalPages(Math.ceil(total / limit));
     } catch (error) {
       console.error('Error fetching offers:', error);
+    } finally {
       setLoading(false);
     }
-  };
+  }, [marketId, page]);
 
   useEffect(() => {
-    fetchOffers(page);
-  },[page]);
+    fetchOffers();
+  }, [page, fetchOffers]);
 
   const renderPagination = () => (
     <View style={styles.paginationContainer}>
-      {/* << Tugma */}
       <TouchableOpacity
         style={[styles.paginationButton, page === 1 && styles.disabledButton]}
-        onPress={() => page > 1 && setPage(1)} // Birinchi sahifaga o'tish
+        onPress={() => page > 1 && setPage(1)}
         disabled={page === 1}
       >
-        <Text style={[styles.paginationText, page === 1 && styles.disabledText]}>{'<<'}</Text>
+        <Text style={[styles.paginationText, page === 1 && styles.disabledText]}>
+          <ArrowLeftToLine color="#fff" />
+        </Text>
       </TouchableOpacity>
 
-      {/* < Tugma */}
       <TouchableOpacity
         style={[styles.paginationButton, page === 1 && styles.disabledButton]}
-        onPress={() => page > 1 && setPage(page - 1)} // Oldingi sahifaga o'tish
+        onPress={() => page > 1 && setPage(page - 1)}
         disabled={page === 1}
       >
-        <Text style={[styles.paginationText, page === 1 && styles.disabledText]}>{'<'}</Text>
+        <Text style={[styles.paginationText, page === 1 && styles.disabledText]}>
+          <ChevronLeft color="#fff" />
+        </Text>
       </TouchableOpacity>
 
-      {/* Joriy sahifa */}
       <TouchableOpacity style={styles.activeButton}>
-        <Text style={[styles.paginationText, styles.activeText]}>{page}</Text>
+        <Text style={styles.paginationText}>{page}</Text>
       </TouchableOpacity>
 
-      {/* > Tugma */}
       <TouchableOpacity
         style={[styles.paginationButton, page === totalPages && styles.disabledButton]}
-        onPress={() => page < totalPages && setPage(page + 1)} // Keyingi sahifaga o'tish
+        onPress={() => page < totalPages && setPage(page + 1)}
         disabled={page === totalPages}
       >
-        <Text style={[styles.paginationText, page === totalPages && styles.disabledText]}>{'>'}</Text>
+        <Text style={[styles.paginationText, page === totalPages && styles.disabledText]}>
+          <ChevronRight color="#fff" />
+        </Text>
       </TouchableOpacity>
 
-      {/* >> Tugma */}
       <TouchableOpacity
         style={[styles.paginationButton, page === totalPages && styles.disabledButton]}
-        onPress={() => page < totalPages && setPage(totalPages)} // Oxirgi sahifaga o'tish
+        onPress={() => page < totalPages && setPage(totalPages)}
         disabled={page === totalPages}
       >
-        <Text style={[styles.paginationText, page === totalPages && styles.disabledText]}>{'>>'}</Text>
+        <Text style={[styles.paginationText, page === totalPages && styles.disabledText]}>
+          <ArrowRightToLine color="#fff" />
+        </Text>
       </TouchableOpacity>
     </View>
   );
 
-  if (loading) {
+  if (loading && page === 1) {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -92,18 +98,11 @@ const OffersScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      {/* Header: O'ngda "Create" tugmasi */}
       <View style={styles.header}>
         <Text style={styles.title}>{marketName}</Text>
-        <TouchableOpacity
-          style={styles.createButton}
-          onPress={() => navigation.navigate('CreateOffer', { marketId })}
-        >
-          <Text style={styles.createButtonText}><BadgePlus color={'#fff'} height={32} width={32}/></Text>
-        </TouchableOpacity>
+
       </View>
 
-      {/* Offers ro'yxati */}
       <FlatList
         data={offers}
         keyExtractor={(item) => item.offerId}
@@ -114,8 +113,23 @@ const OffersScreen = ({ route }) => {
             <Text style={styles.offerText}>Refunded: {item.refunded ? 'Yes' : 'No'}</Text>
           </View>
         )}
-        ListFooterComponent={renderPagination} // Paginationni FlatList ostiga qo'shish
+        // ListFooterComponent={renderPagination}
+        // onEndReached={() => {
+        //   if (page < totalPages) setPage(page); // Keyingi sahifani yuklash
+        // }}
+        // onEndReachedThreshold={0.5} // Oxirgi elementdan keyin yuklash
       />
+      {renderPagination()}
+
+      <TouchableOpacity
+          style={styles.createButton}
+          onPress={() => navigation.navigate('CreateOffer', { marketId, marketName })}
+        >
+          <Text style={styles.createButtonText}>
+            {/* <BadgePlus color={'#fff'} height={32} width={32} /> */}
+            Mahsulot taklif qilish
+          </Text>
+        </TouchableOpacity>
     </View>
   );
 };
@@ -138,15 +152,19 @@ const styles = StyleSheet.create({
     textAlign:'center',
   },
   createButton: {
-    backgroundColor: '#3D30A2',
+    marginTop:8,
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor: '#365E32',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 10,
   },
   createButtonText: {
+    justifyContent:'center',
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 24,
   },
   loaderContainer: {
     flex: 1,
@@ -167,9 +185,10 @@ const styles = StyleSheet.create({
   },
   paginationContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 20,
+    width: '100%',
   },
   paginationButton: {
     paddingVertical: 8,
@@ -183,20 +202,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 6,
     marginHorizontal: 4,
-    backgroundColor: '#0167f3',
   },
   disabledButton: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#0167f3',
   },
   paginationText: {
     fontSize: 18,
-    color: 'white',
+    color: 'black',
   },
   disabledText: {
     color: '#9ca3af',
-  },
-  activeText: {
-    color: '#fff',
   },
 });
 
