@@ -37,10 +37,6 @@ const SelectProducts = ({ route }) => {
     }
   }, [page]);
 
-  useEffect(() => {
-    fetchProducts();
-  }, [page, fetchProducts]);
-
   useFocusEffect(
     useCallback(() => {
       fetchProducts();
@@ -110,7 +106,7 @@ const SelectProducts = ({ route }) => {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.activeButton}>
+      <TouchableOpacity style={styles.activeButton} disabled={true}>
         <Text style={styles.paginationText}>{page}</Text>
       </TouchableOpacity>
 
@@ -176,7 +172,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   productName: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#333333',
     marginBottom: 8,
@@ -184,7 +180,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   productText: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#333333',
     marginBottom: 4,
   },
@@ -203,10 +199,12 @@ const styles = StyleSheet.create({
   },
   paginationButton: {
     paddingVertical: 8,
-    paddingHorizontal: 24,
+    // paddingHorizontal: 24,
+    width:65,
     backgroundColor: '#3D30A2',
     borderRadius: 6,
     marginHorizontal: 4,
+    alignItems:'center'
   },
   activeButton: {
     paddingVertical: 8,
@@ -218,7 +216,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0167f3',
   },
   paginationText: {
-    fontSize: 18,
+    fontSize: 22,
     color: 'black',
   },
   disabledText: {
@@ -228,7 +226,7 @@ const styles = StyleSheet.create({
     marginTop:8,
     justifyContent:'center',
     alignItems:'center',
-    backgroundColor: '#365E32',
+    backgroundColor: '#3D30A2',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 10,

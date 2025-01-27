@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity }
 import { useNavigation } from '@react-navigation/native';
 import api from '../services/api';
 import { useFocusEffect } from '@react-navigation/native';
-import { BadgePlus, ChevronLeft, ArrowLeftToLine, ChevronRight, ArrowRightToLine} from 'lucide-react-native';
+import { ClipboardPlus, ChevronLeft, ArrowLeftToLine, ChevronRight, ArrowRightToLine} from 'lucide-react-native';
 
 const OffersScreen = ({ route }) => {
   const { marketId, marketName } = route.params;
@@ -62,7 +62,7 @@ const OffersScreen = ({ route }) => {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.activeButton}>
+      <TouchableOpacity style={styles.activeButton} disabled={true}>
         <Text style={styles.paginationText}>{page}</Text>
       </TouchableOpacity>
 
@@ -100,36 +100,34 @@ const OffersScreen = ({ route }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{marketName}</Text>
-
-      </View>
-
-      <FlatList
-        data={offers}
-        keyExtractor={(item) => item.offerId}
-        renderItem={({ item }) => (
-          <View style={styles.offerCard}>
-            <Text style={styles.offerText}>Total Price: ${item.totalPrice}</Text>
-            <Text style={styles.offerText}>Status: {item.status}</Text>
-            <Text style={styles.offerText}>Refunded: {item.refunded ? 'Yes' : 'No'}</Text>
-          </View>
-        )}
-        // ListFooterComponent={renderPagination}
-        // onEndReached={() => {
-        //   if (page < totalPages) setPage(page); // Keyingi sahifani yuklash
-        // }}
-        // onEndReachedThreshold={0.5} // Oxirgi elementdan keyin yuklash
-      />
-      {renderPagination()}
-
-      <TouchableOpacity
+        <TouchableOpacity
           style={styles.createButton}
           onPress={() => navigation.navigate('CreateOffer', { marketId, marketName })}
         >
           <Text style={styles.createButtonText}>
-            {/* <BadgePlus color={'#fff'} height={32} width={32} /> */}
-            Mahsulot taklif qilish
+            <ClipboardPlus color={'#fff'} height={32} width={32} />
+            {/* Mahsulot taklif qilish <ClipboardPlus /> */}
           </Text>
         </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={offers}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('OfferDetails', { offerId: item.id })}
+          >
+            <View style={styles.offerCard}>
+              <Text style={styles.offerText}>Total Price: ${item.totalPrice}</Text>
+              <Text style={styles.offerText}>Status: {item.status}</Text>
+              <Text style={styles.offerText}>Refunded: {item.refunded ? 'Yes' : 'No'}</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+      />
+
+      {renderPagination()}
     </View>
   );
 };
@@ -147,7 +145,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
     textAlign:'center',
   },
@@ -155,7 +153,7 @@ const styles = StyleSheet.create({
     marginTop:8,
     justifyContent:'center',
     alignItems:'center',
-    backgroundColor: '#365E32',
+    backgroundColor: '#3D30A2',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 10,
@@ -180,7 +178,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
   },
   offerText: {
-    fontSize: 16,
+    fontSize: 20,
     marginBottom: 4,
   },
   paginationContainer: {
@@ -192,10 +190,12 @@ const styles = StyleSheet.create({
   },
   paginationButton: {
     paddingVertical: 8,
-    paddingHorizontal: 24,
+    // paddingHorizontal: 24,
+    width:65,
     backgroundColor: '#3D30A2',
     borderRadius: 6,
     marginHorizontal: 4,
+    alignItems:'center'
   },
   activeButton: {
     paddingVertical: 8,
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0167f3',
   },
   paginationText: {
-    fontSize: 18,
+    fontSize: 22,
     color: 'black',
   },
   disabledText: {

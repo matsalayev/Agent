@@ -43,7 +43,7 @@ const Dashboard = () => {
             onPress={() => navigation.navigate('OffersScreen', { marketId: item.id, marketName: item.name })} // To'g'ri nom bilan
           >
             <Text style={styles.marketName}>{item.name}</Text>
-            <Text>{item.address}</Text>
+            <Text style={styles.infoText}>{item.address}</Text>
             <Text>{new Date(item.createdAt).toLocaleDateString()}</Text>
           </TouchableOpacity>
 
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center',
@@ -78,9 +78,12 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
   },
   marketName: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
   },
+  infoText: {
+    fontSize: 18,
+  }
 });
 
 export default Dashboard;

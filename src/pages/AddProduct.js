@@ -152,6 +152,7 @@ const AddProduct = () => {
               <DropDownPicker
                 open={dropdownOpen}
                 value={saleType}
+                fontSize={22}
                 items={[
                   { label: 'Litre', value: 'litre' },
                   { label: 'Amount', value: 'amount' },
@@ -219,6 +220,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
+    fontSize:22,
     height: 45,
     borderColor: 'gray',
     borderWidth: 1,
@@ -228,7 +230,7 @@ const styles = StyleSheet.create({
   },
   searchIcon: {
     marginLeft: 8,
-    backgroundColor: '#0167f3',
+    backgroundColor: '#3D30A2',
     width: 43,
     height: 43,
     borderRadius: 10,
@@ -236,11 +238,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',    // Gorizontal markazlash
   },
   label: {
-    fontSize: 16,
+    fontSize: 24,
     marginBottom: 8,
     color: '#333',
   },
   input: {
+    fontSize:22,
     height: 45,
     borderColor: 'gray',
     borderWidth: 1,
@@ -255,9 +258,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 15,
     borderRadius: 9,
+    fontSize:22,
   },
   dropdownStyle: {
     backgroundColor: '#fafafa',
+    fontSize:22,
   },
   searchResultItem: {
     padding: 10,
@@ -268,7 +273,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   searchResultText: {
-    fontSize: 16,
+    fontSize: 22,
     color: '#333',
   },
   sendButton: {
@@ -280,7 +285,7 @@ const styles = StyleSheet.create({
   },
   sendButtonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 22,
   },
   formWrapper: {
     flex: 1, // Ensures the form is centered within the remaining space

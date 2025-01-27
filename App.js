@@ -14,6 +14,7 @@ import Info from './src/pages/Info'; // Example info
 import OffersScreen from './src/pages/OffersScreen';
 import CreateOffer from './src/pages/CreateOffer';
 import SelectProducts from './src/pages/SelectProducts';
+import OfferDetails from './src/pages/OfferDetailsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -97,6 +98,7 @@ const App = () => {
         <Stack.Screen name="OffersScreen" component={OffersScreen} /> 
         <Stack.Screen name="CreateOffer" component={CreateOffer} /> 
         <Stack.Screen name="SelectProducts" component={SelectProducts} /> 
+        <Stack.Screen name="OfferDetails" component={OfferDetails} /> 
       </Stack.Navigator>
     </NavigationContainer>
   );

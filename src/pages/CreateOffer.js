@@ -139,10 +139,10 @@ const CreateOffer = ({ route }) => {
           });
         }
 
-        Alert.alert('Success', 'Offer created successfully.');
-        navigation.navigate('OffersScreen', {marketId, marketName});
+        Alert.alert('Muvoffaqqiyatli!', 'Taklif muvoffaqqiyatli yuborildi.');
+        navigation.navigate('OfferDetails', { offerId: offerId })
     } catch (error) {
-      Alert.alert('Error', 'Failed to send the offer.');
+      Alert.alert('Xatolik', 'Taklif yuborishda xatolik sodir bo\'ldi.');
     }
   };
 
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   productName: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#333333',
     flex: 1,
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   productText: {
-    fontSize: 16,
+    fontSize: 20,
     color: '#333333',
     marginBottom: 4,
   },
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   quantityButtonText: {
-    fontSize: 20,
+    fontSize: 22,
     color: '#333',
   },
   quantityInput: {
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     height: 65,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0167f3',
+    backgroundColor: '#3D30A2',
     borderRadius: 10,
     margin:10,
   },
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 20,
-    fontSize: 16,
+    fontSize: 20,
   },
   modalBackground: {
     flex: 1,
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 15,
   },
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
   },
   selectedPaymentText: {
     fontSize: 18,
