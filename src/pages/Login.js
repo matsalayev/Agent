@@ -1,19 +1,23 @@
-import React, {useState} from 'react';
-import {
-  View,
-  TextInput,
-  Alert,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, TextInput, Alert, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
 import api from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Login = ({navigation}) => {
+const Login = ({ navigation }) => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+
+  // Check if the user is already logged in when the component mounts
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      if (accessToken) {
+        // If access token exists, navigate to Main screen
+        navigation.replace('Main');
+      }
+    };
+    checkLoginStatus();
+  }, [navigation]);
 
   const handleLogin = async () => {
     if (!phone || !password) {
@@ -22,12 +26,14 @@ const Login = ({navigation}) => {
     }
 
     try {
-      const response = await api.post('/auth/login', {phone, password});
-      const {accessToken, refreshToken} = response.data;
+      const response = await api.post('/auth/login', { phone, password });
+      const { accessToken, refreshToken } = response.data;
 
+      // Store the access token and refresh token in AsyncStorage
       await AsyncStorage.setItem('accessToken', accessToken);
       await AsyncStorage.setItem('refreshToken', refreshToken);
 
+      // Navigate to Main screen after successful login
       navigation.replace('Main');
     } catch (error) {
       if (error.response && error.response.status === 401) {

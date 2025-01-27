@@ -15,6 +15,9 @@ import OffersScreen from './src/pages/OffersScreen';
 import CreateOffer from './src/pages/CreateOffer';
 import SelectProducts from './src/pages/SelectProducts';
 import OfferDetails from './src/pages/OfferDetailsScreen';
+import UpdaeOffer from './src/pages/UpdateOffer';
+import Loading from './src/pages/Loading';
+
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -25,12 +28,18 @@ const TabNavigator = () => (
       headerShown: false,
       tabBarStyle: {
         backgroundColor: '#fff', // Background color of the navbar
-        height: 50, // Increased navbar height
+        height: 60, // Increased navbar height
         borderTopWidth: 1,
+        alignItems:'center',
         borderTopColor: '#ddd', // Border color for the navbar
       },
       tabBarActiveTintColor: '#3D30A2', // Active tab color
       tabBarInactiveTintColor: '#8e8e8e', // Inactive tab color
+      tabBarItemStyle: {
+        display:'flex',
+        justifyContent: 'center', // Center icon vertically
+        alignItems: 'center', // Center icon horizontally
+      },
     }}
   >
     <Tab.Screen
@@ -38,7 +47,7 @@ const TabNavigator = () => (
       component={AddProduct}PackagePlusIcon
       options={{
         tabBarIcon: ({ color, size }) => (
-          <PackagePlusIcon size={size} color={color} />
+          <PackagePlusIcon size={30} color={color} />
         ),
         tabBarLabel: () => null, // Hide the title
       }}
@@ -48,7 +57,7 @@ const TabNavigator = () => (
       component={ViewProducts}
       options={{
         tabBarIcon: ({ color, size }) => (
-          <ShoppingCartIcon size={size} color={color} />
+          <ShoppingCartIcon size={30} color={color} />
         ),
         tabBarLabel: () => null, // Hide the title
       }}
@@ -58,7 +67,7 @@ const TabNavigator = () => (
       component={Dashboard}
       options={{
         tabBarIcon: ({ color, size }) => (
-          <StoreIcon size={size} color={color} />
+          <StoreIcon size={30} color={color} />
         ),
         tabBarLabel: () => null, // Hide the title
       }}
@@ -68,7 +77,7 @@ const TabNavigator = () => (
       component={History}
       options={{
         tabBarIcon: ({ color, size }) => (
-          <Bell size={size} color={color} />
+          <Bell size={30} color={color} />
         ),
         tabBarLabel: () => null, // Hide the title
       }}
@@ -78,7 +87,7 @@ const TabNavigator = () => (
       component={Info}
       options={{
         tabBarIcon: ({ color, size }) => (
-          <InfoIcon size={size} color={color} />
+          <InfoIcon size={30} color={color} />
         ),
         tabBarLabel: () => null, // Hide the title
       }}
@@ -87,6 +96,7 @@ const TabNavigator = () => (
 );
 
 const App = () => {
+  
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -99,6 +109,8 @@ const App = () => {
         <Stack.Screen name="CreateOffer" component={CreateOffer} /> 
         <Stack.Screen name="SelectProducts" component={SelectProducts} /> 
         <Stack.Screen name="OfferDetails" component={OfferDetails} /> 
+        <Stack.Screen name="UpdateOffer" component={UpdaeOffer} /> 
+
       </Stack.Navigator>
     </NavigationContainer>
   );

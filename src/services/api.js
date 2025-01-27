@@ -1,8 +1,9 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '@env'; // .env faylidan qiymatni import qilish
 
 const api = axios.create({
-  baseURL: '.../agent',
+  baseURL:BASE_URL, // .env faylidan olingan qiymat
   headers: {
     'Content-Type': 'application/json',
   },

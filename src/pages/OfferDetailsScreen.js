@@ -5,13 +5,16 @@ import {
   StyleSheet,
   ActivityIndicator,
   FlatList,
+  TouchableOpacity,
 } from 'react-native';
 import api from '../services/api';
+import { ChevronDown,ChevronUp,Pencil } from 'lucide-react-native';
 
 const OfferDetailsScreen = ({route}) => {
   const {offerId} = route.params;
   const [offerDetails, setOfferDetails] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isOpen,setIsOpen] = useState(false);
 
   useEffect(() => {
     const fetchOfferDetails = async () => {
@@ -48,10 +51,24 @@ const OfferDetailsScreen = ({route}) => {
       </View>
     );
   }
-
+  const toggleOpen=()=>{
+    setIsOpen(!isOpen)
+  }
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Taklif Tafsilotlari</Text>
+      <View style={styles.updownContainer}>
+        <Text style={styles.title}>Taklif Tafsilotlari</Text>
+        <TouchableOpacity
+          style={styles.editbtn}
+          onPress={() =>
+            navigation.navigate('UpdaeOffer', {offerId})
+          }>
+          <Text style={styles.editButtonText}>
+            <Pencil color={'#fff'} />
+          </Text>
+        </TouchableOpacity>
+        {/* <Pencil size={40} style={styles.iconUpDown}/> */}
+      </View>
       <Text style={styles.detailText}>
         Market nomi: {offerDetails.marketName}
       </Text>
@@ -71,8 +88,17 @@ const OfferDetailsScreen = ({route}) => {
       <Text style={styles.detailText}>
         Qaytarib yuborilgan: {offerDetails.refunded ? 'Ha' : "Yo'q"}
       </Text>
-
-      <FlatList
+      <View style={styles.updownContainer}>
+        <Text style={styles.detailText}>
+          Maxsulotlarni ko'rish
+        </Text>
+        {
+           isOpen ?<TouchableOpacity style={styles.UpDownbtn} onPress={toggleOpen}><ChevronUp size={35} style={styles.icon}/></TouchableOpacity>:
+           <TouchableOpacity style={styles.UpDownbtn} onPress={toggleOpen}><ChevronDown size={35}  style={styles.icon}/></TouchableOpacity>
+        }
+      </View>
+      
+     {isOpen && <FlatList
         data={offerDetails.items}
         keyExtractor={item => item.id}
         renderItem={({item}) => (
@@ -91,7 +117,7 @@ const OfferDetailsScreen = ({route}) => {
             </Text>
           </View>
         )}
-      />
+      />}
     </View>
   );
 };
@@ -140,6 +166,40 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginBottom: 4,
   },
+  editbtn:{
+    marginTop: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#3D30A2',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+  },
+  editButtonText:{
+    justifyContent: 'center',
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  UpDownbtn:{
+    display:'flex',
+    alignItems:'center',
+    justifyContent:'center',
+    borderRadius:10,
+    width:70,
+    height:30,
+    backgroundColor:'#0167f3'
+  },
+  icon:{
+    color:'white'
+  },
+  updownContainer:{
+    marginBottom:20,
+    display:'flex',
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent:'space-between',
+    paddingHorizontal:4
+  }
 });
 
 export default OfferDetailsScreen;
