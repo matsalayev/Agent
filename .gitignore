@@ -24,6 +24,7 @@ DerivedData
 
 # Android/IntelliJ
 #
+node_modules
 build/
 .idea
 .gradle
