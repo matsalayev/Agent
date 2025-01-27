@@ -1,37 +1,55 @@
-import React, { useState } from 'react';
-import { View, TextInput, Alert, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import api from '../services/api'; // Axios konfiguratsiyasi
+import React, {useState} from 'react';
+import {
+  View,
+  TextInput,
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
+import api from '../services/api';
 
-const ResetPassword = ({ navigation }) => {
+const ResetPassword = ({navigation}) => {
   const [phone, setPhone] = useState('');
 
   const handleResetPassword = async () => {
     if (!phone) {
-      Alert.alert('Error', 'Please enter your phone number.');
+      Alert.alert('Xato', 'Iltimos, telefon raqamingizni kiriting.');
       return;
     }
 
     try {
-      const response = await api.post('auth/reset-password', { phone });
+      const response = await api.post('auth/reset-password', {phone});
 
       if (response.status === 200) {
-        Alert.alert('Success', 'Password reset successful. Please check your email or SMS for further instructions.');
-        navigation.replace('Login'); // Redirect to login page after successful reset
+        Alert.alert(
+          'Muvaffaqiyatli',
+          'Parolni tiklash muvaffaqiyatli yakunlandi. Iltimos, qo‘shimcha ko‘rsatmalar uchun email yoki SMSni tekshiring.',
+        );
+        navigation.replace('Login');
       } else {
-        Alert.alert('Error', 'Something went wrong. Please try again later.');
+        Alert.alert(
+          'Xato',
+          'Biror narsa noto‘g‘ri ketdi. Iltimos, keyinroq yana urinib ko‘ring.',
+        );
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        Alert.alert('Invalid phone number', 'The phone number you entered is invalid. Please try again.');
+        Alert.alert(
+          'Noto‘g‘ri telefon raqami',
+          'Kiritilgan telefon raqami noto‘g‘ri. Iltimos, qayta urinib ko‘ring.',
+        );
       } else {
-        Alert.alert('Error', 'Something went wrong. Please try again later.');
+        Alert.alert(
+          'Xato',
+          'Biror narsa noto‘g‘ri ketdi. Iltimos, keyinroq yana urinib ko‘ring.',
+        );
       }
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Telefon raqami inputi */}
       <TextInput
         style={styles.input}
         placeholderTextColor={'gray'}
@@ -41,15 +59,16 @@ const ResetPassword = ({ navigation }) => {
         onChangeText={setPhone}
       />
 
-      {/* Tugmalar paneli */}
       <View style={styles.buttonContainer}>
-        {/* Orqaga tugmasi */}
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.replace('Login')}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.replace('Login')}>
           <Text style={styles.buttonText}>Orqaga</Text>
         </TouchableOpacity>
 
-        {/* Yuborish tugmasi */}
-        <TouchableOpacity style={styles.sendButton} onPress={handleResetPassword}>
+        <TouchableOpacity
+          style={styles.sendButton}
+          onPress={handleResetPassword}>
           <Text style={styles.buttonText}>Yuborish</Text>
         </TouchableOpacity>
       </View>
@@ -69,27 +88,28 @@ const styles = StyleSheet.create({
     height: 50,
     borderColor: '#0167f3',
     borderWidth: 1,
+    fontSize: 19,
     borderRadius: 9,
     marginBottom: 20,
     paddingHorizontal: 15,
     width: '100%',
   },
   buttonContainer: {
-    flexDirection: 'row', // Horizontal layout for buttons
-    justifyContent: 'space-between', // Space between the buttons
-    width: '100%', // Make it take full width
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   backButton: {
-    backgroundColor: '#0167f3', // Light gray color for back button
-    width: '48%', // Make it almost half of the width
+    backgroundColor: '#0167f3',
+    width: '48%',
     paddingVertical: 15,
     borderRadius: 9,
     justifyContent: 'center',
     alignItems: 'center',
   },
   sendButton: {
-    backgroundColor: '#3D30A2', // Dark purple color for send button
-    width: '48%', // Make it almost half of the width
+    backgroundColor: '#3D30A2',
+    width: '48%',
     paddingVertical: 15,
     borderRadius: 9,
     justifyContent: 'center',
@@ -97,7 +117,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 21,
     fontWeight: 'bold',
   },
 });

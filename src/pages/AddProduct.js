@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import api from '../services/api';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { useNavigation } from '@react-navigation/native';
-import { SearchIcon } from 'lucide-react-native';
+import {useNavigation} from '@react-navigation/native';
+import {SearchIcon} from 'lucide-react-native';
 
 const AddProduct = () => {
   const [name, setName] = useState('');
@@ -26,7 +26,6 @@ const AddProduct = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigation = useNavigation();
 
-  // Mahsulotni qidirish funksiyasi
   const handleSearchProduct = async () => {
     if (!searchQuery) {
       Alert.alert('Xatolik', 'Qidiruv maydonini to‘ldiring.');
@@ -37,29 +36,25 @@ const AddProduct = () => {
         barcode: isNaN(searchQuery) ? null : searchQuery,
         name: isNaN(searchQuery) ? searchQuery : null,
       });
-      console.log('API Response:', response.data); // Ma'lumotni konsolda tekshiring
-      const results = response.data.data || []; // Use data property which is an array
-      setSearchResults(results.slice(0, 5)); // Faqat so'nggi 5 ta mahsulot
+      const results = response.data.data || [];
+      setSearchResults(results.slice(0, 5));
     } catch (error) {
-      console.error('API Error:', error.response || error.message);
       Alert.alert('Xatolik', 'Mahsulot qidirishda xato yuz berdi!');
     }
   };
 
-  // Tanlangan mahsulotni formga to'ldirish
-  const handleSelectProduct = (product) => {
+  const handleSelectProduct = product => {
     setName(product.name);
     setSaleType(product.saleType);
     setPackaging(product.packaging);
     setPurchasePrice(product.purchasePrice.toString());
     setBarcode(product.barcode);
-    setSearchResults([]); // Qidiruv natijalarini tozalash
+    setSearchResults([]);
   };
 
-  // Yangi mahsulot qo'shish funksiyasi
   const handleAddProduct = async () => {
     if (!name || !saleType || !packaging || !purchasePrice) {
-      Alert.alert('Xatolik', 'Barcha maydonlarni to\'ldiring.');
+      Alert.alert('Xatolik', "Barcha maydonlarni to'ldiring.");
       return;
     }
 
@@ -73,7 +68,7 @@ const AddProduct = () => {
       });
 
       if (response.status === 201) {
-        Alert.alert('Muvaffaqiyat', 'Mahsulot muvaffaqiyatli qo\'shildi!');
+        Alert.alert('Muvaffaqiyat', "Mahsulot muvaffaqiyatli qo'shildi!");
         setName('');
         setSaleType('');
         setPackaging('');
@@ -85,8 +80,7 @@ const AddProduct = () => {
         Alert.alert('Sessiya tugadi', 'Iltimos, qaytadan tizimga kiring.');
         navigation.replace('Login');
       } else {
-        console.error('API Error:', error.response || error.message);
-        Alert.alert('Xatolik', 'Mahsulot qo\'shishda xato yuz berdi!');
+        Alert.alert('Xatolik', "Mahsulot qo'shishda xato yuz berdi!");
       }
     }
   };
@@ -94,16 +88,14 @@ const AddProduct = () => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <FlatList
-        data={[1]} // Placeholder to enable FlatList
-        keyExtractor={(item) => item.toString()}
+        data={[1]}
+        keyExtractor={item => item.toString()}
         renderItem={() => (
           <View style={styles.scrollContainer}>
             <Text style={styles.title}>Yangi mahsulot qo'shish</Text>
 
-            {/* Qidiruv maydoni */}
             <View style={styles.searchWrapper}>
               <View style={styles.searchContainer}>
                 <TextInput
@@ -114,21 +106,21 @@ const AddProduct = () => {
                   onChangeText={setSearchQuery}
                   onSubmitEditing={handleSearchProduct}
                 />
-                <TouchableOpacity style={styles.searchIcon} onPress={handleSearchProduct}>
-                  <SearchIcon color={'#fff'}/>
+                <TouchableOpacity
+                  style={styles.searchIcon}
+                  onPress={handleSearchProduct}>
+                  <SearchIcon color={'#fff'} />
                 </TouchableOpacity>
               </View>
 
-              {/* Qidiruv natijalari */}
               {searchResults.length > 0 && (
                 <FlatList
                   data={searchResults}
-                  keyExtractor={(item) => item.id.toString()}
-                  renderItem={({ item }) => (
+                  keyExtractor={item => item.id.toString()}
+                  renderItem={({item}) => (
                     <TouchableOpacity
                       style={styles.searchResultItem}
-                      onPress={() => handleSelectProduct(item)}
-                    >
+                      onPress={() => handleSelectProduct(item)}>
                       <Text style={styles.searchResultText}>
                         {item.name} - {item.packaging}
                       </Text>
@@ -138,7 +130,6 @@ const AddProduct = () => {
               )}
             </View>
 
-            {/* Form maydonlari */}
             <View style={styles.formWrapper}>
               <TextInput
                 style={styles.input}
@@ -152,18 +143,20 @@ const AddProduct = () => {
               <DropDownPicker
                 open={dropdownOpen}
                 value={saleType}
-                fontSize={22}
                 items={[
-                  { label: 'Litre', value: 'litre' },
-                  { label: 'Amount', value: 'amount' },
-                  { label: 'Kg', value: 'kg' },
-                  { label: 'G', value: 'g' },
+                  {label: 'Litr', value: 'litre'},
+                  {label: 'Dona', value: 'amount'},
+                  {label: 'Kilogram', value: 'kg'},
+                  {label: 'Gram', value: 'g'},
                 ]}
                 setOpen={setDropdownOpen}
                 setValue={setSaleType}
                 placeholder="Sotish turini tanlang"
                 style={styles.dropdown}
                 dropDownContainerStyle={styles.dropdownStyle}
+                textStyle={{
+                  fontSize: 19,
+                }}
               />
 
               <TextInput
@@ -183,7 +176,9 @@ const AddProduct = () => {
                 keyboardType="numeric"
               />
 
-              <TouchableOpacity style={styles.sendButton} onPress={handleAddProduct}>
+              <TouchableOpacity
+                style={styles.sendButton}
+                onPress={handleAddProduct}>
                 <Text style={styles.sendButtonText}>Saqlash</Text>
               </TouchableOpacity>
             </View>
@@ -202,16 +197,16 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'flex-start', // Ensures the content starts from the top
+    justifyContent: 'flex-start',
   },
   title: {
-    fontSize: 26,
+    fontSize: 25,
     marginBottom: 20,
     textAlign: 'center',
     color: '#333',
   },
   searchWrapper: {
-    marginBottom: 20, // Add space below the search
+    marginBottom: 20,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -220,7 +215,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize:22,
+    fontSize: 21,
     height: 45,
     borderColor: 'gray',
     borderWidth: 1,
@@ -234,16 +229,16 @@ const styles = StyleSheet.create({
     width: 43,
     height: 43,
     borderRadius: 10,
-    justifyContent: 'center', // Vertikal markazlash
-    alignItems: 'center',    // Gorizontal markazlash
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   label: {
-    fontSize: 24,
+    fontSize: 23,
     marginBottom: 8,
     color: '#333',
   },
   input: {
-    fontSize:22,
+    fontSize: 21,
     height: 45,
     borderColor: 'gray',
     borderWidth: 1,
@@ -258,11 +253,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 15,
     borderRadius: 9,
-    fontSize:22,
+    fontSize: 21,
   },
   dropdownStyle: {
     backgroundColor: '#fafafa',
-    fontSize:22,
   },
   searchResultItem: {
     padding: 10,
@@ -273,7 +267,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   searchResultText: {
-    fontSize: 22,
+    fontSize: 21,
     color: '#333',
   },
   sendButton: {
@@ -285,10 +279,10 @@ const styles = StyleSheet.create({
   },
   sendButtonText: {
     color: '#fff',
-    fontSize: 22,
+    fontSize: 21,
   },
   formWrapper: {
-    flex: 1, // Ensures the form is centered within the remaining space
+    flex: 1,
     justifyContent: 'center',
   },
 });

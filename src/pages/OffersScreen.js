@@ -1,12 +1,25 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useEffect, useState, useCallback} from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import api from '../services/api';
-import { useFocusEffect } from '@react-navigation/native';
-import { ClipboardPlus, ChevronLeft, ArrowLeftToLine, ChevronRight, ArrowRightToLine} from 'lucide-react-native';
+import {useFocusEffect} from '@react-navigation/native';
+import {
+  ClipboardPlus,
+  ChevronLeft,
+  ArrowLeftToLine,
+  ChevronRight,
+  ArrowRightToLine,
+} from 'lucide-react-native';
 
-const OffersScreen = ({ route }) => {
-  const { marketId, marketName } = route.params;
+const OffersScreen = ({route}) => {
+  const {marketId, marketName} = route.params;
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -24,13 +37,11 @@ const OffersScreen = ({ route }) => {
         },
       });
 
-      const { data, total } = response.data;
-
-      // Ma'lumotlarni to'g'ri shaklda yangilash
+      const {data, total} = response.data;
       setOffers(data);
       setTotalPages(Math.ceil(total / limit));
     } catch (error) {
-      console.error('Error fetching offers:', error);
+      console.error('Takliflarni olishda xatolik yuz berdi:', error);
     } finally {
       setLoading(false);
     }
@@ -40,14 +51,20 @@ const OffersScreen = ({ route }) => {
     fetchOffers();
   }, [page, fetchOffers]);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchOffers(page);
+    }, [page, fetchOffers]),
+  );
+
   const renderPagination = () => (
     <View style={styles.paginationContainer}>
       <TouchableOpacity
         style={[styles.paginationButton, page === 1 && styles.disabledButton]}
         onPress={() => page > 1 && setPage(1)}
-        disabled={page === 1}
-      >
-        <Text style={[styles.paginationText, page === 1 && styles.disabledText]}>
+        disabled={page === 1}>
+        <Text
+          style={[styles.paginationText, page === 1 && styles.disabledText]}>
           <ArrowLeftToLine color="#fff" />
         </Text>
       </TouchableOpacity>
@@ -55,9 +72,9 @@ const OffersScreen = ({ route }) => {
       <TouchableOpacity
         style={[styles.paginationButton, page === 1 && styles.disabledButton]}
         onPress={() => page > 1 && setPage(page - 1)}
-        disabled={page === 1}
-      >
-        <Text style={[styles.paginationText, page === 1 && styles.disabledText]}>
+        disabled={page === 1}>
+        <Text
+          style={[styles.paginationText, page === 1 && styles.disabledText]}>
           <ChevronLeft color="#fff" />
         </Text>
       </TouchableOpacity>
@@ -67,21 +84,33 @@ const OffersScreen = ({ route }) => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.paginationButton, page === totalPages && styles.disabledButton]}
+        style={[
+          styles.paginationButton,
+          page === totalPages && styles.disabledButton,
+        ]}
         onPress={() => page < totalPages && setPage(page + 1)}
-        disabled={page === totalPages}
-      >
-        <Text style={[styles.paginationText, page === totalPages && styles.disabledText]}>
+        disabled={page === totalPages}>
+        <Text
+          style={[
+            styles.paginationText,
+            page === totalPages && styles.disabledText,
+          ]}>
           <ChevronRight color="#fff" />
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.paginationButton, page === totalPages && styles.disabledButton]}
+        style={[
+          styles.paginationButton,
+          page === totalPages && styles.disabledButton,
+        ]}
         onPress={() => page < totalPages && setPage(totalPages)}
-        disabled={page === totalPages}
-      >
-        <Text style={[styles.paginationText, page === totalPages && styles.disabledText]}>
+        disabled={page === totalPages}>
+        <Text
+          style={[
+            styles.paginationText,
+            page === totalPages && styles.disabledText,
+          ]}>
           <ArrowRightToLine color="#fff" />
         </Text>
       </TouchableOpacity>
@@ -102,35 +131,81 @@ const OffersScreen = ({ route }) => {
         <Text style={styles.title}>{marketName}</Text>
         <TouchableOpacity
           style={styles.createButton}
-          onPress={() => navigation.navigate('CreateOffer', { marketId, marketName })}
-        >
+          onPress={() =>
+            navigation.navigate('CreateOffer', {marketId, marketName})
+          }>
           <Text style={styles.createButtonText}>
-            <ClipboardPlus color={'#fff'} height={32} width={32} />
-            {/* Mahsulot taklif qilish <ClipboardPlus /> */}
+            <ClipboardPlus color={'#fff'} height={31} width={31} />
           </Text>
         </TouchableOpacity>
       </View>
 
       <FlatList
         data={offers}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+        keyExtractor={item => item.id}
+        renderItem={({item}) => (
           <TouchableOpacity
-            onPress={() => navigation.navigate('OfferDetails', { offerId: item.id })}
-          >
+            onPress={() =>
+              navigation.navigate('OfferDetails', {offerId: item.id})
+            }>
             <View style={styles.offerCard}>
-              <Text style={styles.offerText}>Total Price: ${item.totalPrice}</Text>
-              <Text style={styles.offerText}>Status: {item.status}</Text>
-              <Text style={styles.offerText}>Refunded: {item.refunded ? 'Yes' : 'No'}</Text>
+              <Text style={styles.offerText}>
+                Umumiy Narxi: {formatCurrency(item.totalPrice)} UZS
+              </Text>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.offerText}>Status: </Text>
+                <Text
+                  style={[
+                    styles.offerText,
+                    {color: getStatusTextColor(item.offerStatus)},
+                  ]}>
+                  {getStatusText(item.offerStatus)}
+                </Text>
+              </View>
+              <Text style={styles.offerText}>
+                Qaytarib yuborilgan: {item.refunded ? 'Ha' : "Yo'q"}
+              </Text>
             </View>
           </TouchableOpacity>
         )}
       />
-
       {renderPagination()}
     </View>
   );
 };
+
+const getStatusTextColor = status => {
+  switch (status) {
+    case 'requested':
+      return '#FFD700';
+    case 'approved':
+      return '#008000';
+    case 'cancelled':
+      return '#FF0000';
+    default:
+      return '#000000';
+  }
+};
+
+const getStatusText = status => {
+  switch (status) {
+    case 'requested':
+      return "So'ralgan";
+    case 'approved':
+      return 'Tasdiqlangan';
+    case 'cancelled':
+      return 'Rad qilingan';
+    default:
+      return status;
+  }
+};
+
+function formatCurrency(number) {
+  if (typeof number !== 'number') {
+    throw new Error('Kiritilgan qiymat raqam bo‘lishi kerak');
+  }
+  return number.toLocaleString('en-US');
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -145,24 +220,24 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 26,
+    fontSize: 25,
     fontWeight: 'bold',
-    textAlign:'center',
+    textAlign: 'center',
   },
   createButton: {
-    marginTop:8,
-    justifyContent:'center',
-    alignItems:'center',
+    marginTop: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#3D30A2',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 10,
   },
   createButtonText: {
-    justifyContent:'center',
+    justifyContent: 'center',
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 24,
+    fontSize: 23,
   },
   loaderContainer: {
     flex: 1,
@@ -170,15 +245,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   offerCard: {
-    backgroundColor: '#ffffff',
-    padding: 16,
+    backgroundColor: '#f9f9f9',
+    padding: 12,
     marginBottom: 12,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
+    borderWidth: 2,
+    borderColor: 'gray',
   },
   offerText: {
-    fontSize: 20,
+    fontSize: 19,
     marginBottom: 4,
   },
   paginationContainer: {
@@ -190,12 +265,11 @@ const styles = StyleSheet.create({
   },
   paginationButton: {
     paddingVertical: 8,
-    // paddingHorizontal: 24,
-    width:65,
+    width: 65,
     backgroundColor: '#3D30A2',
     borderRadius: 6,
     marginHorizontal: 4,
-    alignItems:'center'
+    alignItems: 'center',
   },
   activeButton: {
     paddingVertical: 8,
@@ -207,7 +281,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0167f3',
   },
   paginationText: {
-    fontSize: 22,
+    fontSize: 21,
     color: 'black',
   },
   disabledText: {

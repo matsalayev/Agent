@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StoreIcon, PackagePlusIcon, ShoppingCartIcon, HistoryIcon, InfoIcon } from 'lucide-react-native';
+import { StoreIcon, PackagePlusIcon, ShoppingCartIcon, Bell, InfoIcon } from 'lucide-react-native';
 // Import pages
 import Login from './src/pages/Login';
 import ResetPassword from './src/pages/ResetPassword';
@@ -68,7 +68,7 @@ const TabNavigator = () => (
       component={History}
       options={{
         tabBarIcon: ({ color, size }) => (
-          <HistoryIcon size={size} color={color} />
+          <Bell size={size} color={color} />
         ),
         tabBarLabel: () => null, // Hide the title
       }}

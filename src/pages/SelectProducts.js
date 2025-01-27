@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -8,30 +8,37 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { Checkbox } from 'expo-checkbox';
+import {Checkbox} from 'expo-checkbox';
 import api from '../services/api';
-import { useFocusEffect } from '@react-navigation/native';
-import { ChevronRight, ArrowRightToLine, ChevronLeft, ArrowLeftToLine } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
+import {
+  ChevronRight,
+  ArrowRightToLine,
+  ChevronLeft,
+  ArrowLeftToLine,
+} from 'lucide-react-native';
+import {useNavigation} from '@react-navigation/native';
 
-const SelectProducts = ({ route }) => {
+const SelectProducts = ({route}) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0); // Cache the total pages for pagination
-  const [selectedProducts, setSelectedProducts] = useState([]); // Track selected products
+  const [totalPages, setTotalPages] = useState(0);
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const limit = 4;
   const navigation = useNavigation();
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get(`/products/all?limit=${limit}&page=${page}`);
-      const { data, total } = response.data;
+      const response = await api.get(
+        `/products/all?limit=${limit}&page=${page}`,
+      );
+      const {data, total} = response.data;
       setProducts(data);
       setTotalPages(Math.ceil(total / limit));
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error('Mahsulotlarni olishda xatolik:', error);
     } finally {
       setLoading(false);
     }
@@ -40,58 +47,63 @@ const SelectProducts = ({ route }) => {
   useFocusEffect(
     useCallback(() => {
       fetchProducts();
-    }, [fetchProducts])
+    }, [fetchProducts]),
   );
 
-  const toggleSelectProduct = (product) => {
-    setSelectedProducts((prev) => {
-      // Check if the product is already selected
-      const productIndex = prev.findIndex((p) => p.id === product.id);
+  const toggleSelectProduct = product => {
+    setSelectedProducts(prev => {
+      const productIndex = prev.findIndex(p => p.id === product.id);
       if (productIndex !== -1) {
-        // If already selected, remove it
-        return prev.filter((p) => p.id !== product.id);
+        return prev.filter(p => p.id !== product.id);
       } else {
-        // If not selected, add it with quantity = 1
-        return [...prev, { ...product, quantity: 1 }];
+        return [...prev, {...product, quantity: 1}];
       }
     });
   };
-
 
   const handleSelectProducts = () => {
     if (selectedProducts.length === 0) {
       Alert.alert('Tanlash', 'Hech qanday mahsulot tanlanmadi');
       return;
     }
-    // Tanlangan mahsulotlarni uzatish
     route.params?.onProductsSelected(selectedProducts);
-    navigation.goBack(); // Orqaga qaytish
+    navigation.goBack();
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({item}) => (
     <View style={styles.productCard}>
       <View style={styles.productHeader}>
         <Text style={styles.productName}>{item.name}</Text>
         <Checkbox
-          value={!!selectedProducts.find((p) => p.id === item.id)}
+          value={!!selectedProducts.find(p => p.id === item.id)}
           onValueChange={() => toggleSelectProduct(item)}
-          tintColors={{ true: '#34d399', false: '#d1d5db' }}
+          tintColors={{true: '#34d399', false: '#d1d5db'}}
         />
       </View>
-      <Text style={styles.productText}>{`Qadoqlanishi: ${item.packaging}`}</Text>
-      <Text style={styles.productText}>{`Narxi: ${item.purchasePrice} UZS`}</Text>
+      <Text
+        style={styles.productText}>{`Qadoqlanishi: ${item.packaging}`}</Text>
+      <Text style={styles.productText}>{`Narxi: ${formatCurrency(
+        item.purchasePrice,
+      )} UZS`}</Text>
       <Text style={styles.productText}>{`Sotuv turi: ${item.saleType}`}</Text>
     </View>
   );
+
+  function formatCurrency(number) {
+    if (typeof number !== 'number') {
+      throw new Error('Kiritilgan qiymat raqam bo‘lishi kerak');
+    }
+    return number.toLocaleString('en-US');
+  }
 
   const renderPagination = () => (
     <View style={styles.paginationContainer}>
       <TouchableOpacity
         style={[styles.paginationButton, page === 1 && styles.disabledButton]}
         onPress={() => page > 1 && setPage(1)}
-        disabled={page === 1}
-      >
-        <Text style={[styles.paginationText, page === 1 && styles.disabledText]}>
+        disabled={page === 1}>
+        <Text
+          style={[styles.paginationText, page === 1 && styles.disabledText]}>
           <ArrowLeftToLine color="#fff" />
         </Text>
       </TouchableOpacity>
@@ -99,9 +111,9 @@ const SelectProducts = ({ route }) => {
       <TouchableOpacity
         style={[styles.paginationButton, page === 1 && styles.disabledButton]}
         onPress={() => page > 1 && setPage(page - 1)}
-        disabled={page === 1}
-      >
-        <Text style={[styles.paginationText, page === 1 && styles.disabledText]}>
+        disabled={page === 1}>
+        <Text
+          style={[styles.paginationText, page === 1 && styles.disabledText]}>
           <ChevronLeft color="#fff" />
         </Text>
       </TouchableOpacity>
@@ -111,24 +123,36 @@ const SelectProducts = ({ route }) => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.paginationButton, page === totalPages && styles.disabledButton]}
+        style={[
+          styles.paginationButton,
+          page === totalPages && styles.disabledButton,
+        ]}
         onPress={() => page < totalPages && setPage(page + 1)}
-        disabled={page === totalPages}
-      >
-        <Text style={[styles.paginationText, page === totalPages && styles.disabledText]}>
+        disabled={page === totalPages}>
+        <Text
+          style={[
+            styles.paginationText,
+            page === totalPages && styles.disabledText,
+          ]}>
           <ChevronRight color="#fff" />
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.paginationButton, page === totalPages && styles.disabledButton]}
+        style={[
+          styles.paginationButton,
+          page === totalPages && styles.disabledButton,
+        ]}
         onPress={() => page < totalPages && setPage(totalPages)}
-        disabled={page === totalPages}
-      >
-        <Text style={[styles.paginationText, page === totalPages && styles.disabledText]}>
+        disabled={page === totalPages}>
+        <Text
+          style={[
+            styles.paginationText,
+            page === totalPages && styles.disabledText,
+          ]}>
           <ArrowRightToLine color="#fff" />
         </Text>
-      </TouchableOpacity>      
+      </TouchableOpacity>
     </View>
   );
 
@@ -141,11 +165,15 @@ const SelectProducts = ({ route }) => {
           <FlatList
             data={products}
             renderItem={renderItem}
-            keyExtractor={(item) => item.productId ? item.productId.toString() : item.id.toString()}
-            ListEmptyComponent={<Text>No products available</Text>}
+            keyExtractor={item =>
+              item.productId ? item.productId.toString() : item.id.toString()
+            }
+            ListEmptyComponent={<Text>Mahsulotlar mavjud emas</Text>}
           />
           {renderPagination()}
-          <TouchableOpacity style={styles.selectButton} onPress={handleSelectProducts}>
+          <TouchableOpacity
+            style={styles.selectButton}
+            onPress={handleSelectProducts}>
             <Text style={styles.buttonText}>Tanlash</Text>
           </TouchableOpacity>
         </>
@@ -166,13 +194,13 @@ const styles = StyleSheet.create({
     margin: 5,
     borderRadius: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 5,
   },
   productName: {
-    fontSize: 24,
+    fontSize: 23,
     fontWeight: 'bold',
     color: '#333333',
     marginBottom: 8,
@@ -180,7 +208,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   productText: {
-    fontSize: 18,
+    fontSize: 17,
     color: '#333333',
     marginBottom: 4,
   },
@@ -199,12 +227,11 @@ const styles = StyleSheet.create({
   },
   paginationButton: {
     paddingVertical: 8,
-    // paddingHorizontal: 24,
-    width:65,
+    width: 65,
     backgroundColor: '#3D30A2',
     borderRadius: 6,
     marginHorizontal: 4,
-    alignItems:'center'
+    alignItems: 'center',
   },
   activeButton: {
     paddingVertical: 8,
@@ -216,26 +243,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#0167f3',
   },
   paginationText: {
-    fontSize: 22,
+    fontSize: 21,
     color: 'black',
   },
   disabledText: {
     color: '#9ca3af',
   },
   selectButton: {
-    marginTop:8,
-    justifyContent:'center',
-    alignItems:'center',
+    marginTop: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#3D30A2',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 10,
   },
   buttonText: {
-    justifyContent:'center',
+    justifyContent: 'center',
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 24,
+    fontSize: 23,
   },
 });
 

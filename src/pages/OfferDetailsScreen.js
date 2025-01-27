@@ -1,9 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, FlatList } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  FlatList,
+} from 'react-native';
 import api from '../services/api';
 
-const OfferDetailsScreen = ({ route }) => {
-  const { offerId } = route.params;
+const OfferDetailsScreen = ({route}) => {
+  const {offerId} = route.params;
   const [offerDetails, setOfferDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -13,7 +19,10 @@ const OfferDetailsScreen = ({ route }) => {
         const response = await api.get(`/offer/${offerId}`);
         setOfferDetails(response.data);
       } catch (error) {
-        console.error('Error fetching offer details:', error);
+        console.error(
+          'Taklif tafsilotlarini olishda xatolik yuz berdi:',
+          error,
+        );
       } finally {
         setLoading(false);
       }
@@ -33,42 +42,66 @@ const OfferDetailsScreen = ({ route }) => {
   if (!offerDetails) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorText}>Failed to load offer details.</Text>
+        <Text style={styles.errorText}>
+          Ma'lumotlarni yuklashning iloji bo'lmadi
+        </Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Offer Details</Text>
-      <Text style={styles.detailText}>Market nomi: {offerDetails.marketName}</Text>
-      <Text style={styles.detailText}>To'lov turi: {offerDetails.paymentType}</Text>
-      <Text style={styles.detailText}>Yetkazilish sanasi: {offerDetails.deliveryDate}</Text>
-      <Text style={styles.detailText}>Total Price: ${offerDetails.totalPrice}</Text>
-      <Text style={styles.detailText}>Status: {offerDetails.offerStatus}</Text>
-      <Text style={styles.detailText}>Kim tomonidan taklif qilingan: {offerDetails.requestedBy}</Text>
+      <Text style={styles.title}>Taklif Tafsilotlari</Text>
       <Text style={styles.detailText}>
-        Qaytarib yuborilgan: {offerDetails.refunded ? 'Ha' : 'Yo\'q'}
+        Market nomi: {offerDetails.marketName}
+      </Text>
+      <Text style={styles.detailText}>
+        To'lov turi: {offerDetails.paymentType}
+      </Text>
+      <Text style={styles.detailText}>
+        Yetkazilish sanasi: {offerDetails.deliveryDate}
+      </Text>
+      <Text style={styles.detailText}>
+        Umumiy Narxi: {formatCurrency(offerDetails.totalPrice)} UZS
+      </Text>
+      <Text style={styles.detailText}>Holat: {offerDetails.offerStatus}</Text>
+      <Text style={styles.detailText}>
+        Kim tomonidan taklif qilingan: {offerDetails.requestedBy}
+      </Text>
+      <Text style={styles.detailText}>
+        Qaytarib yuborilgan: {offerDetails.refunded ? 'Ha' : "Yo'q"}
       </Text>
 
-      {/* FlatList */}
       <FlatList
         data={offerDetails.items}
-        keyExtractor={(item) => item.id} // `id` o'rniga ma'lumotdagi haqiqiy identifikator maydonini ishlating
-        renderItem={({ item }) => (
+        keyExtractor={item => item.id}
+        renderItem={({item}) => (
           <View style={styles.itemCard}>
-            <Text style={styles.itemText}>Mahsulot nomi: {item.productName}</Text>
+            <Text style={styles.itemText}>
+              Mahsulot nomi: {item.productName}
+            </Text>
             <Text style={styles.itemText}>Qadoqlash: {item.packaging}</Text>
             <Text style={styles.itemText}>Savdo turi: {item.saleType}</Text>
-            <Text style={styles.itemText}>Narxi: ${item.salePrice}</Text>
+            <Text style={styles.itemText}>
+              Narxi: {formatCurrency(item.salePrice)} UZS
+            </Text>
             <Text style={styles.itemText}>Miqdori: {item.amount}</Text>
-            <Text style={styles.itemText}>Qaytarilgan: {item.refunded ? 'Ha' : 'Yo\'q'}</Text>
+            <Text style={styles.itemText}>
+              Qaytarilgan: {item.refunded ? 'Ha' : "Yo'q"}
+            </Text>
           </View>
         )}
       />
     </View>
   );
 };
+
+function formatCurrency(number) {
+  if (typeof number !== 'number') {
+    throw new Error('Kiritilgan qiymat raqam bo‘lishi kerak');
+  }
+  return number.toLocaleString('en-US');
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -82,16 +115,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 23,
     fontWeight: 'bold',
     marginBottom: 16,
   },
   detailText: {
-    fontSize: 18,
+    fontSize: 17,
     marginBottom: 8,
   },
   errorText: {
-    fontSize: 18,
+    fontSize: 17,
     color: 'red',
     textAlign: 'center',
   },
@@ -104,7 +137,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
   },
   itemText: {
-    fontSize: 16,
+    fontSize: 15,
     marginBottom: 4,
   },
 });

@@ -1,53 +1,59 @@
-import React, { useState } from 'react';
-import { View, TextInput, Alert, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
-import api from '../services/api'; // Axios konfiguratsiyasi
+import React, {useState} from 'react';
+import {
+  View,
+  TextInput,
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
+import api from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Login = ({ navigation }) => {
+const Login = ({navigation}) => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
     if (!phone || !password) {
-      Alert.alert('Error', 'Please enter both phone and password.');
+      Alert.alert('Xato', 'Iltimos, telefon va parolni kiriting.');
       return;
     }
 
     try {
-      const response = await api.post('/auth/login', { phone, password });
-      const { accessToken, refreshToken } = response.data;
+      const response = await api.post('/auth/login', {phone, password});
+      const {accessToken, refreshToken} = response.data;
 
-      // Tokenlarni saqlash
       await AsyncStorage.setItem('accessToken', accessToken);
       await AsyncStorage.setItem('refreshToken', refreshToken);
 
-      // Muvaffaqiyatli login
-      navigation.replace('Main'); // Dashboard sahifasiga o'tish
+      navigation.replace('Main');
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        Alert.alert('Login Failed', 'Invalid credentials. Please try again.');
+        Alert.alert(
+          'Kirish xatosi',
+          "Noto'g'ri ma'lumotlar. Iltimos, qayta urinib ko'ring.",
+        );
       } else {
-        Alert.alert('Error', 'Something went wrong. Please try again later.');
+        Alert.alert(
+          'Xato',
+          "Biror narsa noto'g'ri ketdi. Iltimos, keyinroq yana urinib ko'ring.",
+        );
       }
     }
   };
 
   const handleForgotPassword = () => {
-    // Parolni unutdingizmi? uchun navigatsiya yoki boshqa funksiyalarni qo'shishingiz mumkin
     navigation.replace('ResetPassword');
   };
 
   return (
     <View style={styles.container}>
-      {/* Logo */}
       <View style={styles.logoContainer}>
-        <Image
-          source={require('../../assets/logo.png')} // Logo rasm manzili
-          style={styles.logo}
-        />
+        <Image source={require('../../assets/logo.png')} style={styles.logo} />
       </View>
 
-      {/* Telefon va Parol inputlari */}
       <TextInput
         style={styles.input}
         placeholder="Telefon"
@@ -66,12 +72,10 @@ const Login = ({ navigation }) => {
         onChangeText={setPassword}
       />
 
-      {/* Kirish tugmasi */}
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Kirish</Text>
       </TouchableOpacity>
 
-      {/* Parolni unutdingizmi? link */}
       <TouchableOpacity onPress={handleForgotPassword}>
         <Text style={styles.forgotPassword}>Parolni unutdingizmi?</Text>
       </TouchableOpacity>
@@ -99,32 +103,33 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
+    fontSize: 19,
     borderColor: '#0167f3',
     borderWidth: 1,
-    borderRadius: 9,  // Dumaloq burchaklar
+    borderRadius: 9,
     marginBottom: 20,
     paddingHorizontal: 15,
     width: '100%',
   },
   button: {
-    backgroundColor: '#3D30A2',  // Tugma rangi
-    width: '100%',  // Kengligi
-    paddingVertical: 15,  // Vertikal joy
-    borderRadius: 9,  // Dumaloq burchaklar
+    backgroundColor: '#3D30A2',
+    width: '100%',
+    paddingVertical: 15,
+    borderRadius: 9,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,  // Tugma bilan input o'rtasida bo'sh joy
+    marginBottom: 20,
   },
   buttonText: {
-    color: '#fff',  // Yozuv rangi
-    fontSize: 18,
+    color: '#fff',
+    fontSize: 23,
     fontWeight: 'bold',
   },
   forgotPassword: {
-    color: '#0167f3',  // Moviy rang
+    color: '#0167f3',
     textAlign: 'center',
     marginTop: 10,
-    fontSize: 16,
+    fontSize: 21,
     textDecorationLine: 'underline',
   },
 });

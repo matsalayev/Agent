@@ -1,45 +1,35 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet, Image } from 'react-native';
-import api from '../services/api'; // API konfiguratsiyasi
-import AsyncStorage from '@react-native-async-storage/async-storage'; // AsyncStorage dan foydalanish
+import {View, Text, Button, StyleSheet, Image} from 'react-native';
+import api from '../services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Info = ({ navigation }) => {
-
-  // Akkaundan chiqish funksiyasi
+const Info = ({navigation}) => {
   const logout = async () => {
     try {
-      // API orqali logout qilish so'rovini yuborish
       await api.get('/auth/logout');
-      
-      // Tokenni o'chirish
       await AsyncStorage.removeItem('accessToken');
-      
-      // Foydalanuvchini Login sahifasiga yo'naltirish
       navigation.replace('Login');
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('Chiqish xatosi:', error);
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Logo */}
       <View style={styles.logoContainer}>
         <Image
-          source={require('../../assets/it-forelead.png')} // Logo rasm manzili
+          source={require('../../assets/it-forelead.png')}
           style={styles.logo}
         />
       </View>
 
-      {/* Ilova haqida ma'lumot */}
       <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>Welcome to the app!</Text>
-        <Text style={styles.infoText}>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose.</Text>
+        <Text style={styles.infoText}>Ilovaga xush kelibsiz!</Text>
+        <Text style={styles.infoText}>V 1.0</Text>
       </View>
 
-      {/* Akkaundan chiqish tugmasi */}
       <View style={styles.logoutContainer}>
-        <Button title="Log out" onPress={logout} color="#ff4d4d" />
+        <Button title="Chiqish" onPress={logout} color="#ff4d4d" />
       </View>
     </View>
   );
@@ -66,7 +56,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   infoText: {
-    fontSize: 16,
+    fontSize: 15,
     textAlign: 'center',
     marginBottom: 10,
   },

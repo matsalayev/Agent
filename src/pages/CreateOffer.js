@@ -1,14 +1,28 @@
-import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Modal, FlatList, Alert, Text } from 'react-native';
-import { AlignLeft, CalendarCheck2, SendHorizontal, DollarSign } from 'lucide-react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  FlatList,
+  Alert,
+  Text,
+} from 'react-native';
+import {
+  AlignLeft,
+  CalendarCheck2,
+  SendHorizontal,
+  DollarSign,
+} from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useNavigation } from '@react-navigation/native';
-import { SquareMinus } from 'lucide-react-native';
+import {useNavigation} from '@react-navigation/native';
+import {SquareMinus} from 'lucide-react-native';
 import api from '../services/api';
 
-const CreateOffer = ({ route }) => {
+const CreateOffer = ({route}) => {
   const navigation = useNavigation();
-  const { marketId, marketName } = route.params;
+  const {marketId, marketName} = route.params;
   const [comment, setComment] = useState('');
   const [paymentType, setPaymentType] = useState('');
   const [agentId, setAgentId] = useState('');
@@ -20,7 +34,7 @@ const CreateOffer = ({ route }) => {
   const handleSelectProducts = () => {
     navigation.navigate('SelectProducts', {
       selectedProducts,
-      onProductsSelected: (products) => {
+      onProductsSelected: products => {
         setSelectedProducts(products);
         if (products.length > 0) {
           setAgentId(products[0].agentId);
@@ -29,74 +43,109 @@ const CreateOffer = ({ route }) => {
     });
   };
 
-  const removeProduct = (productId) => {
-    setSelectedProducts((prevProducts) =>
-      prevProducts.filter((product) => product.id !== productId)
+  const removeProduct = productId => {
+    setSelectedProducts(prevProducts =>
+      prevProducts.filter(product => product.id !== productId),
     );
   };
 
   const updateQuantity = (productId, quantity) => {
     const parsedQuantity = parseInt(quantity, 10);
     if (!isNaN(parsedQuantity) && parsedQuantity >= 1) {
-      setSelectedProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product.id === productId ? { ...product, quantity: parsedQuantity } : product
-        )
+      setSelectedProducts(prevProducts =>
+        prevProducts.map(product =>
+          product.id === productId
+            ? {...product, quantity: parsedQuantity}
+            : product,
+        ),
       );
     }
   };
 
-  const decreaseQuantity = (productId) => {
-    setSelectedProducts((prevProducts) =>
-      prevProducts.map((product) =>
+  const decreaseQuantity = productId => {
+    setSelectedProducts(prevProducts =>
+      prevProducts.map(product =>
         product.id === productId && product.quantity > 1
-          ? { ...product, quantity: product.quantity - 1 }
-          : product
-      )
+          ? {...product, quantity: product.quantity - 1}
+          : product,
+      ),
     );
   };
 
-  const increaseQuantity = (productId) => {
-    setSelectedProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.id === productId ? { ...product, quantity: product.quantity + 1 } : product
-      )
+  const increaseQuantity = productId => {
+    setSelectedProducts(prevProducts =>
+      prevProducts.map(product =>
+        product.id === productId
+          ? {...product, quantity: product.quantity + 1}
+          : product,
+      ),
     );
   };
 
   const renderSelectedProducts = () => (
     <FlatList
       data={selectedProducts}
-      keyExtractor={(item) => item.id ? item.id.toString() : item.name + item.packaging}
-      renderItem={({ item }) => (
+      keyExtractor={item =>
+        item.id ? item.id.toString() : item.name + item.packaging
+      }
+      renderItem={({item}) => (
         <View style={styles.productCard}>
           <View style={styles.productHeader}>
-            <Text style={styles.productName}>{`${item.name} - ${item.packaging || ''}`}</Text>
+            <Text style={styles.productName}>{`${item.name} - ${
+              item.packaging || ''
+            }`}</Text>
             <TouchableOpacity onPress={() => removeProduct(item.id)}>
               <SquareMinus style={styles.removeButton} />
             </TouchableOpacity>
           </View>
-          <Text style={styles.productText}>{`Narxi: ${item.purchasePrice} UZS`}</Text>
-          <Text style={styles.productText}>{`Sotuv turi: ${item.saleType}`}</Text>
+          <Text style={styles.productText}>{`Narxi: ${formatCurrency(
+            item.purchasePrice,
+          )} UZS`}</Text>
+          <Text
+            style={styles.productText}>{`Sotuv turi: ${item.saleType}`}</Text>
           <View style={styles.quantityContainer}>
-            <TouchableOpacity onPress={() => decreaseQuantity(item.id)} style={styles.quantityButton}>
+            <TouchableOpacity
+              onPress={() => decreaseQuantity(item.id)}
+              style={styles.quantityButton}>
               <Text style={styles.quantityButtonText}>-</Text>
             </TouchableOpacity>
             <TextInput
               style={styles.quantityInput}
               value={item.quantity?.toString() || '1'}
               keyboardType="numeric"
-              onChangeText={(text) => updateQuantity(item.id, text)}
+              onChangeText={text => updateQuantity(item.id, text)}
             />
-            <TouchableOpacity onPress={() => increaseQuantity(item.id)} style={styles.quantityButton}>
+            <TouchableOpacity
+              onPress={() => increaseQuantity(item.id)}
+              style={styles.quantityButton}>
               <Text style={styles.quantityButtonText}>+</Text>
             </TouchableOpacity>
           </View>
+          <Text style={styles.productText}>
+            Umumiy narxi: {formatCurrency(item.quantity * item.purchasePrice)}{' '}
+            UZS
+          </Text>
         </View>
       )}
-      ListEmptyComponent={<Text style={styles.emptyText}>No selected products</Text>}
+      ListEmptyComponent={
+        <Text style={styles.emptyText}>Mahsulotlar tanlanmadi!</Text>
+      }
     />
   );
+
+  const calculateTotalPrice = () => {
+    return selectedProducts.reduce((total, product) => {
+      const productTotal = product.quantity * product.purchasePrice;
+      return total + productTotal;
+    }, 0);
+  };
+
+  function formatCurrency(number) {
+    if (typeof number !== 'number') {
+      throw new Error('Kiritilgan qiymat raqam bo‘lishi kerak');
+    }
+    return number.toLocaleString('en-US');
+  }
 
   const handleSelectDate = () => {
     setShowDatePicker(true);
@@ -106,20 +155,20 @@ const CreateOffer = ({ route }) => {
     setModalVisible(true);
   };
 
-  const handleSelectPaymentType = (type) => {
+  const handleSelectPaymentType = type => {
     setPaymentType(type);
     setModalVisible(false);
   };
 
   const handleSendOffer = async () => {
     if (!selectedProducts.length || !deliveryDate || !paymentType) {
-      Alert.alert('Error', 'Please complete all fields before sending the offer.');
+      Alert.alert('Xatolik', "Iltimos, barcha maydonlarni to'ldiring.");
       return;
     }
 
     try {
       const offerResponse = await api.post('/offer/create', {
-        items: selectedProducts.map((product) => ({
+        items: selectedProducts.map(product => ({
           productId: product.id,
           amount: product.quantity,
         })),
@@ -129,26 +178,29 @@ const CreateOffer = ({ route }) => {
         marketId,
       });
 
-        const offerId = offerResponse.data;
+      const offerId = offerResponse.data;
 
-        console.log(offerId);
-        if (comment) {
-          await api.post('/offer/comment', {
-            offerId,
-            text: comment,
-          });
-        }
+      if (comment) {
+        await api.post('/offer/comment', {
+          offerId,
+          text: comment,
+        });
+      }
 
-        Alert.alert('Muvoffaqqiyatli!', 'Taklif muvoffaqqiyatli yuborildi.');
-        navigation.navigate('OfferDetails', { offerId: offerId })
+      setComment('');
+      setPaymentType('');
+      setSelectedProducts([]);
+      setDeliveryDate(null);
+      Alert.alert('Muvaffaqqiyatli!', 'Taklif muvaffaqqiyatli yuborildi.');
+      navigation.navigate('OfferDetails', {offerId});
     } catch (error) {
-      Alert.alert('Xatolik', 'Taklif yuborishda xatolik sodir bo\'ldi.');
+      Alert.alert('Xatolik', 'Taklif yuborishda xatolik sodir bo‘ldi.');
     }
   };
 
   return (
     <View style={styles.container}>
-      {renderSelectedProducts()}
+      <View style={styles.contentWrapper}>{renderSelectedProducts()}</View>
 
       <View style={styles.footer}>
         <TextInput
@@ -160,30 +212,57 @@ const CreateOffer = ({ route }) => {
         />
 
         {paymentType ? (
-          <Text style={styles.selectedPaymentText}>Tanlangan to'lov turi: {paymentType}</Text>
+          <Text style={styles.selectedPaymentText}>
+            Tanlangan to'lov turi: {paymentType}
+          </Text>
         ) : (
-          <Text style={styles.selectedPaymentText}>Hech qanday to'lov turi tanlanmagan</Text>
+          <Text style={styles.selectedPaymentText}>
+            Hech qanday to'lov turi tanlanmagan
+          </Text>
         )}
 
         {deliveryDate ? (
           <Text style={styles.selectedPaymentText}>
-            Yetkazib berish sanasi: {`${String(deliveryDate.getDate()).padStart(2, '0')}/${String(deliveryDate.getMonth() + 1).padStart(2, '0')}/${deliveryDate.getFullYear()}`}
+            Yetkazib berish sanasi:{' '}
+            {`${String(deliveryDate.getDate()).padStart(2, '0')}/${String(
+              deliveryDate.getMonth() + 1,
+            ).padStart(2, '0')}/${deliveryDate.getFullYear()}`}
           </Text>
         ) : (
-          <Text style={styles.selectedPaymentText}>Yetkazib berish sanasi belgilanmadi</Text>
+          <Text style={styles.selectedPaymentText}>
+            Yetkazib berish sanasi belgilanmadi
+          </Text>
+        )}
+
+        {selectedProducts.length > 0 ? (
+          <Text style={styles.selectedPaymentText}>
+            Umumiy narxi: {formatCurrency(calculateTotalPrice())} UZS
+          </Text>
+        ) : (
+          <Text style={styles.selectedPaymentText}>
+            Hech qanday mahsulot tanlanmadi
+          </Text>
         )}
 
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.footerButton} onPress={handleSelectProducts}>
+          <TouchableOpacity
+            style={styles.footerButton}
+            onPress={handleSelectProducts}>
             <AlignLeft size={32} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.footerButton} onPress={handlePaymentType}>
+          <TouchableOpacity
+            style={styles.footerButton}
+            onPress={handlePaymentType}>
             <DollarSign size={32} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.footerButton} onPress={handleSelectDate}>
+          <TouchableOpacity
+            style={styles.footerButton}
+            onPress={handleSelectDate}>
             <CalendarCheck2 size={32} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.footerButton} onPress={handleSendOffer}>
+          <TouchableOpacity
+            style={styles.footerButton}
+            onPress={handleSendOffer}>
             <SendHorizontal size={32} color="#fff" />
           </TouchableOpacity>
         </View>
@@ -192,33 +271,28 @@ const CreateOffer = ({ route }) => {
           transparent={true}
           visible={modalVisible}
           animationType="fade"
-          onRequestClose={() => setModalVisible(false)}
-        >
+          onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modalBackground}>
             <View style={styles.modalContainer}>
               <Text style={styles.modalTitle}>To'lov turini tanlang</Text>
               <TouchableOpacity
                 style={styles.optionButton}
-                onPress={() => handleSelectPaymentType('cash')}
-              >
+                onPress={() => handleSelectPaymentType('cash')}>
                 <Text style={styles.optionText}>Naqt pul</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.optionButton}
-                onPress={() => handleSelectPaymentType('paid')}
-              >
+                onPress={() => handleSelectPaymentType('paid')}>
                 <Text style={styles.optionText}>To'langan</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.optionButton}
-                onPress={() => handleSelectPaymentType('bank_transfer')}
-              >
+                onPress={() => handleSelectPaymentType('bank_transfer')}>
                 <Text style={styles.optionText}>O'tkazma</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.optionButton}
-                onPress={() => handleSelectPaymentType('terminal')}
-              >
+                onPress={() => handleSelectPaymentType('terminal')}>
                 <Text style={styles.optionText}>Terminal</Text>
               </TouchableOpacity>
             </View>
@@ -248,12 +322,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
   },
   productCard: {
-    padding: 20,
+    padding: 19,
     backgroundColor: '#ffffff',
-    margin: 5,
+    margin: 4,
     borderRadius: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 5,
@@ -261,10 +335,10 @@ const styles = StyleSheet.create({
   productHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 9,
   },
   productName: {
-    fontSize: 24,
+    fontSize: 23,
     fontWeight: 'bold',
     color: '#333333',
     flex: 1,
@@ -275,35 +349,36 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   productText: {
-    fontSize: 20,
+    fontSize: 19,
     color: '#333333',
     marginBottom: 4,
   },
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 9,
+    marginBottom: 9,
   },
   quantityButton: {
-    width: 30,
-    height: 30,
+    width: 34,
+    height: 34,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ddd',
-    borderRadius: 15,
+    borderRadius: 45,
   },
   quantityButtonText: {
-    fontSize: 22,
+    fontSize: 21,
     color: '#333',
   },
   quantityInput: {
-    height: 40,
-    width: 60,
+    height: 39,
+    width: 59,
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
     textAlign: 'center',
-    marginHorizontal: 10,
+    marginHorizontal: 9,
     backgroundColor: '#f9f9f9',
   },
   emptyText: {
@@ -311,17 +386,21 @@ const styles = StyleSheet.create({
     color: '#aaa',
     marginTop: 20,
   },
+  contentWrapper: {
+    flex: 1,
+    paddingBottom: 225,
+  },
   footer: {
-    marginTop: 30,
-    padding: 10,
+    padding: 9,
     backgroundColor: '#ffffff',
-    borderRadius: 10,
+    borderRadius: 9,
     borderTopWidth: 1,
     borderTopColor: '#ddd',
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
+    height: 240,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -329,22 +408,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerButton: {
-    width: 65,
-    height: 65,
+    width: 64,
+    height: 64,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#3D30A2',
-    borderRadius: 10,
-    margin:10,
+    borderRadius: 9,
+    margin: 9,
   },
   commentInput: {
-    height: 40,
+    height: 49,
     borderColor: '#ddd',
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-    fontSize: 20,
+    paddingHorizontal: 9,
+    marginBottom: 9,
+    fontSize: 19,
   },
   modalBackground: {
     flex: 1,
@@ -354,31 +433,32 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     backgroundColor: '#fff',
-    padding: 20,
+    padding: 19,
     borderRadius: 8,
-    width: 300,
+    width: 299,
     alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 24,
+    fontSize: 23,
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: 14,
   },
   optionButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 90,
+    paddingVertical: 11,
+    paddingHorizontal: 89,
     backgroundColor: '#365E32',
     borderRadius: 8,
-    marginBottom: 10,
+    marginBottom: 9,
   },
   optionText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 17,
   },
   selectedPaymentText: {
-    fontSize: 18,
-    marginTop:3,
-    padding:3,
+    fontWeight: 'bold',
+    fontSize: 17,
+    marginTop: 2,
+    padding: 2,
     color: '#333',
   },
 });

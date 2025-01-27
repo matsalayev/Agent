@@ -1,6 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import api from '../services/api';
 
 const Dashboard = () => {
@@ -15,7 +22,7 @@ const Dashboard = () => {
         setMarkets(response.data);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching markets:', error);
+        console.error('Xatolik yuz berdi:', error);
         setLoading(false);
       }
     };
@@ -33,20 +40,25 @@ const Dashboard = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Markets</Text>
+      <Text style={styles.title}>Marketlar</Text>
       <FlatList
         data={markets}
-        keyExtractor={(item, index) => item.marketId ? item.marketId.toString() : index.toString()}
-        renderItem={({ item }) => (
+        keyExtractor={(item, index) =>
+          item.marketId ? item.marketId.toString() : index.toString()
+        }
+        renderItem={({item}) => (
           <TouchableOpacity
             style={styles.marketCard}
-            onPress={() => navigation.navigate('OffersScreen', { marketId: item.id, marketName: item.name })} // To'g'ri nom bilan
-          >
+            onPress={() =>
+              navigation.navigate('OffersScreen', {
+                marketId: item.id,
+                marketName: item.name,
+              })
+            }>
             <Text style={styles.marketName}>{item.name}</Text>
             <Text style={styles.infoText}>{item.address}</Text>
             <Text>{new Date(item.createdAt).toLocaleDateString()}</Text>
           </TouchableOpacity>
-
         )}
       />
     </View>
@@ -64,26 +76,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 26,
+    fontSize: 25,
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center',
   },
   marketCard: {
     backgroundColor: '#f9f9f9',
-    padding: 12,
-    marginBottom: 12,
+    padding: 11,
+    marginBottom: 11,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
+    borderWidth: 2,
+    borderColor: '#0167f3',
   },
   marketName: {
-    fontSize: 24,
+    fontSize: 23,
     fontWeight: 'bold',
   },
   infoText: {
-    fontSize: 18,
-  }
+    fontSize: 17,
+  },
 });
 
 export default Dashboard;
